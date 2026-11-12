@@ -31,14 +31,20 @@ export class Player {
   update(dt, game) {
     const s = game.state;
     const inp = game.input;
-    let dx = (inp.right ? 1 : 0) - (inp.left ? 1 : 0);
-    let dy = (inp.down ? 1 : 0) - (inp.up ? 1 : 0);
-    const moving = dx !== 0 || dy !== 0;
-
+    // first person: forward/strafe relative to where you are looking
+    let fwd = (inp.up ? 1 : 0) - (inp.down ? 1 : 0) + (inp.my || 0);
+    let str = (inp.right ? 1 : 0) - (inp.left ? 1 : 0) + (inp.mx || 0);
+    let mag = Math.hypot(fwd, str);
+    if (mag > 1) { fwd /= mag; str /= mag; mag = 1; }
+    const moving = mag > 0.08;
+    let dx = 0, dy = 0;
     if (moving) {
-      const len = Math.hypot(dx, dy);
-      dx /= len; dy /= len;
-      this.dir = Math.atan2(dy, dx);
+      const c = Math.cos(this.dir), s2 = Math.sin(this.dir);
+      dx = c * fwd + -s2 * str;
+      dy = s2 * fwd + c * str;
+      const len = Math.hypot(dx, dy) || 1;
+      dx /= len;
+      dy /= len;
     }
 
     const tile = tileAt(game.world, this.x, this.y);

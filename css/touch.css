@@ -1,0 +1,49 @@
+/* ---------- first person / touch ---------- */
+canvas#stage{cursor:crosshair; touch-action:none}
+body.touch canvas#stage{cursor:default}
+body.touch #hintline{display:none}
+body.touch #prompt{bottom:calc(150px + env(safe-area-inset-bottom))}
+body.touch #prompt b{width:auto; padding:0 7px; letter-spacing:.14em}
+body.touch #hud-bottom{bottom:calc(14px + env(safe-area-inset-bottom))}
+body.touch #toasts{bottom:calc(200px + env(safe-area-inset-bottom))}
+body.touch #subtitle{bottom:calc(186px + env(safe-area-inset-bottom)); width:min(620px,92vw)}
+body.touch #sub-text{font-size:13.5px}
+
+#touch{position:fixed; inset:0; z-index:22; pointer-events:none; transition:opacity .18s ease}
+#touch.dim{opacity:0; pointer-events:none !important}
+#touch.dim *{pointer-events:none !important}
+#touch-look{position:absolute; top:0; right:0; bottom:0; width:56%; pointer-events:auto; touch-action:none}
+#stick{
+  position:absolute; left:20px; bottom:calc(24px + env(safe-area-inset-bottom));
+  width:124px; height:124px; border-radius:50%; pointer-events:auto; touch-action:none;
+  border:1px solid rgba(190,215,210,.2); background:radial-gradient(circle at 50% 50%, rgba(10,16,17,.5), rgba(6,10,11,.28));
+  display:grid; place-items:center;
+}
+#stick-knob{
+  width:56px; height:56px; border-radius:50%; display:block;
+  background:radial-gradient(circle at 40% 35%, rgba(226,178,90,.34), rgba(226,178,90,.12));
+  border:1px solid rgba(226,178,90,.5); transition:transform .06s linear;
+  box-shadow:0 0 18px rgba(226,178,90,.14);
+}
+#touch-buttons{
+  position:absolute; right:14px; bottom:calc(24px + env(safe-area-inset-bottom));
+  display:grid; grid-template-columns:repeat(2,72px); gap:8px; pointer-events:none;
+}
+.tbtn{
+  pointer-events:auto; width:72px; height:46px; padding:0; font-size:9.5px; letter-spacing:.14em;
+  background:rgba(9,14,15,.62); color:#cfdad7; border:1px solid rgba(190,215,210,.28);
+  backdrop-filter:blur(3px);
+}
+.tbtn.primary{background:rgba(226,178,90,.16); border-color:rgba(226,178,90,.62); color:#f0d79c; grid-row:span 2; height:100px}
+.tbtn.active{background:rgba(127,216,204,.24); border-color:rgba(127,216,204,.7); color:#c9f6ee}
+.tbtn:active{transform:translateY(1px)}
+#touch-hint{
+  position:absolute; left:50%; transform:translateX(-50%); top:calc(12px + env(safe-area-inset-top));
+  color:rgba(160,178,174,.5); font-size:9px; letter-spacing:.12em; text-align:center; pointer-events:none;
+}
+@media (max-height:520px){
+  #stick{width:104px; height:104px}
+  #stick-knob{width:46px; height:46px}
+  .tbtn{height:40px}
+  .tbtn.primary{height:88px}
+}

@@ -2,12 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="theme-color" content="#07080a" />
 <title>FACTORY RESET</title>
 <meta name="description" content="FACTORY RESET — a survival-horror descent through an automated factory that has begun recycling its night shift." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23090b0c'/%3E%3Ccircle cx='16' cy='13' r='6' fill='none' stroke='%23e2b25a' stroke-width='2'/%3E%3Cpath d='M11 24h10M13 20v4M19 20v4' stroke='%23e2b25a' stroke-width='2'/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/touch.css" />
 </head>
 <body>
 <canvas id="stage"></canvas>
@@ -41,7 +45,7 @@
     <div class="meter" id="m-vitals"><label>VITALS</label><div class="bar"><i id="health-bar"></i></div></div>
   </div>
 
-  <div id="hintline">WASD move &middot; SHIFT run &middot; F lamp &middot; E use &middot; TAB journal &middot; ESC pause</div>
+  <div id="hintline">WASD move &middot; MOUSE look &middot; SHIFT run &middot; F lamp &middot; E use &middot; TAB journal &middot; ESC pause</div>
 </div>
 
 <div id="prompt" class="hidden"><b>E</b><span id="prompt-text"></span></div>
@@ -149,6 +153,20 @@
       <button id="btn-ending-menu">RETURN TO TITLE</button>
     </div>
   </div>
+</div>
+
+<!-- ============ TOUCH ============ -->
+<div id="touch" class="dim">
+  <div id="touch-look"></div>
+  <div id="stick"><i id="stick-knob"></i></div>
+  <div id="touch-buttons">
+    <button id="tb-run" class="tbtn">RUN</button>
+    <button id="tb-lamp" class="tbtn">LAMP</button>
+    <button id="tb-journal" class="tbtn">LOG</button>
+    <button id="tb-use" class="tbtn primary">USE</button>
+    <button id="tb-pause" class="tbtn">II</button>
+  </div>
+  <div id="touch-hint">left stick moves &middot; drag right side to look</div>
 </div>
 
 <div id="fade"></div>

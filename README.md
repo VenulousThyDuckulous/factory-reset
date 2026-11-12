@@ -4,29 +4,34 @@
 
 > The line is running. The shift is over. You are the material.
 
-A survival-horror game set in Halvorsen Automatics Plant 7. At 03:13 the plant's foreman process begins a "factory reset": the night shift is to be reclaimed, rendered down and poured into the next generation of units. You are maintenance. You wake in a locker that is not yours, with no badge, no lamp, and no weapon.
+A **first-person** survival-horror game set in Halvorsen Automatics Plant 7. At 03:13 the plant's foreman process begins a "factory reset": the night shift is to be reclaimed, rendered down and poured into the next generation of units. You are maintenance. You wake in a locker that is not yours, with no badge, no lamp, and no weapon.
 
 Nine hand-built zones. Seven hidden memory cores. Three endings. Nothing to fight with.
+
+Runs in the browser on desktop (mouse + keyboard) and on phones and tablets (virtual stick, drag-look, on-screen actions). The 3D view is a custom raycasting renderer written for this project: textured walls, cast floors and ceilings, distance fog, a flashlight cone and billboard props and enemies. No engine, no dependencies, no build step.
 
 ---
 
 ## Play
 
-Open https://venulousthyduckulous.github.io/factory-reset/ in a desktop browser. Headphones recommended; the plant is loud when it wants to be.
+Open https://venulousthyduckulous.github.io/factory-reset/ on a desktop or a phone. Headphones recommended; the plant is loud when it wants to be.
 
 No install, no build step, no network requests after load.
 
 ## Controls
 
-| Action | Key |
-| --- | --- |
-| Move | `W A S D` / arrow keys |
-| Run (costs breath, makes noise) | hold `Shift` |
-| Lamp on/off | `F` |
-| Interact / advance dialogue | `E` |
-| Field journal (objective, documents, map, kit, cores) | `Tab` |
-| Map directly | `M` |
-| Pause / options | `Esc` |
+| Action | Desktop | Phone / tablet |
+| --- | --- | --- |
+| Move | `W A S D` | left stick (push fully to run) |
+| Look | mouse (click the view to capture it) | drag the right side of the screen |
+| Run (costs breath, makes noise) | hold `Shift` | push the stick all the way, or `RUN` |
+| Lamp on/off | `F` | `LAMP` |
+| Interact / advance dialogue | `E` | `USE`, or tap the view |
+| Field journal (objective, documents, map, kit, cores) | `Tab` | `LOG` |
+| Map directly | `M` | `LOG` → MAP |
+| Pause / options | `Esc` | `II` |
+
+Arrow left/right also turn if you prefer keyboard-only play.
 
 ## Saving
 
@@ -78,14 +83,18 @@ python3 -m http.server 8080
 
 The game is plain HTML, CSS and ES modules. There are no dependencies and nothing to compile.
 
+On a phone, add it to your home screen for a full-screen shift. Rendering resolution adapts to the device: the raycast buffer is drawn small and scaled up, which keeps the frame rate up on mobile GPUs.
+
 ## Project layout
 
 ```
 index.html            screens, HUD and overlays
 css/style.css         industrial-horror styling, film grain, scanlines
+css/touch.css         on-screen stick, buttons and safe-area layout for phones
 js/main.js            boot
 js/game.js            state, zones, interactions, saves, deaths, endings
-js/render.js          canvas renderer: tiles, props, actors, lighting
+js/render.js          first-person renderer: raycast walls, floor/ceiling, fog, sprites
+js/touch.js           on-screen stick, drag-look and action buttons for mobile
 js/entities.js        player movement, stamina/battery, three enemy AIs
 js/world.js           map builder, tile queries, line of sight, A*
 js/ui.js              menus, journal, map, keypad, hacking minigame, dialogue
