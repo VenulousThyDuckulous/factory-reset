@@ -2,7 +2,8 @@ import * as Save from "./save.js";
 import { Audio } from "./audio.js";
 import { UI } from "./ui.js";
 import { initRenderer, resizeRenderer, draw } from "./render.js";
-import { parseZone, randomWalkable } from "./world.js";
+import { parseZone, randomWalkable, hasLOS } from "./world.js";
+import { Touch } from "./touch.js";
 import { Player, Enemy } from "./entities.js";
 import { getZone, objectivesFor, ITEMS, SHARDS, ENDINGS, INTRO, ZONE_LIST } from "./content/zones.js";
 
@@ -48,7 +49,7 @@ export const Game = {
   player: null,
   enemies: [],
   cam: { x: 0, y: 0 },
-  input: { up: false, down: false, left: false, right: false, sprint: false },
+  input: { up: false, down: false, left: false, right: false, sprint: false, mx: 0, my: 0, turn: 0, runToggle: false },
   keys: new Set(),
   time: 0,
   last: 0,
@@ -95,12 +96,31 @@ export const Game = {
 
     window.addEventListener("keydown", (e) => this.onKeyDown(e));
     window.addEventListener("keyup", (e) => this.onKeyUp(e));
-    window.addEventListener("blur", () => { this.input = { up: false, down: false, left: false, right: false, sprint: false }; });
+    window.addEventListener("blur", () => { this.input = { up: false, down: false, left: false, right: false, sprint: false, mx: 0, my: 0, turn: 0, runToggle: false }; });
+    Touch.init(this);
+    this.setupLook();
 
     this.last = performance.now();
     this.running = true;
     UI.showTitle();
     requestAnimationFrame((t) => this.frame(t));
+  },
+
+  setupLook() {
+    const look = (dx) => {
+      if (!this.state || this.paused || this.dead || this.finished) return;
+      if (UI.screenName() || UI.isDialogue()) return;
+      this.player.dir += dx;
+    };
+    document.addEventListener("mousemove", (e) => {
+      if (document.pointerLockElement === this.canvas) look(e.movementX * 0.0026);
+    });
+    this.canvas.addEventListener("click", () => {
+      Audio.resume();
+      if (!Touch.isTouch() && this.state && !UI.screenName() && !this.paused && !this.dead && this.canvas.requestPointerLock) {
+        this.canvas.requestPointerLock();
+      }
+    });
   },
 
   resize() {
@@ -304,6 +324,7 @@ export const Game = {
         UI.updateHUD();
       }
     }
+    Touch.sync();
   },
 
   update(dt) {
@@ -311,6 +332,7 @@ export const Game = {
     s.playtime += dt;
     this.zoneTime += dt;
 
+    if (this.input.turn) this.player.dir += this.input.turn * 2.35 * dt;
     this.player.update(dt, this);
     for (const e of this.enemies) e.update(dt, this);
     if (this.dead) return;
@@ -390,15 +412,21 @@ export const Game = {
   },
 
   findNearProp() {
-    let best = null, bd = 1.5;
+    let best = null, bd = 2.05;
+    const pl = this.player;
     for (const p of this.world.props) {
       if (this.state.taken[p.key] && (p.type === "item" || p.type === "note" || p.type === "shard" || p.type === "corpse")) continue;
-      const d = Math.hypot(p.x + 0.5 - this.player.x, p.y + 0.5 - this.player.y);
-      if (d < bd) {
-        // doors need to be approached from a walkable neighbour; fine either way
-        bd = d;
-        best = p;
-      }
+      const px = p.x + 0.5, py = p.y + 0.5;
+      const d = Math.hypot(px - pl.x, py - pl.y);
+      if (d >= bd) continue;
+      // you have to be looking at it, not just standing on it
+      const a = Math.atan2(py - pl.y, px - pl.x);
+      const diff = Math.abs(((a - pl.dir + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+      const reach = d < 0.95 ? 1.5 : 0.95;
+      if (diff > reach) continue;
+      if (d > 0.9 && !hasLOS(this.world, pl.x, pl.y, px, py, this.state, 3)) continue;
+      bd = d;
+      best = p;
     }
     return best;
   },
@@ -953,6 +981,15 @@ export const Game = {
   flash(a, ms) { UI.flash(a, ms); },
   shakeBy(v) { this.shake = Math.max(this.shake, v); },
 
+  toggleLamp() {
+    const s = this.state;
+    if (!s) return;
+    if (!s.hasLamp) { UI.say("", "Your lamp is in the locker room.", 2000); return; }
+    if (s.battery <= 0) { UI.say("", "The lamp cell is dead.", 2000); Audio.wrong(); return; }
+    s.lamp = !s.lamp;
+    Audio.beep(s.lamp);
+  },
+
   onKeyDown(e) {
     const k = e.key;
     const low = k.toLowerCase();
@@ -985,16 +1022,12 @@ export const Game = {
     switch (low) {
       case "w": case "arrowup": this.input.up = true; e.preventDefault(); break;
       case "s": case "arrowdown": this.input.down = true; e.preventDefault(); break;
-      case "a": case "arrowleft": this.input.left = true; e.preventDefault(); break;
-      case "d": case "arrowright": this.input.right = true; e.preventDefault(); break;
+      case "a": this.input.left = true; e.preventDefault(); break;
+      case "d": this.input.right = true; e.preventDefault(); break;
+      case "arrowleft": this.input.turn = -1; e.preventDefault(); break;
+      case "arrowright": this.input.turn = 1; e.preventDefault(); break;
       case "shift": this.input.sprint = true; break;
-      case "f": {
-        if (!this.state.hasLamp) { UI.say("", "Your lamp is in the locker room.", 2000); break; }
-        if (this.state.battery <= 0) { UI.say("", "The lamp cell is dead.", 2000); Audio.wrong(); break; }
-        this.state.lamp = !this.state.lamp;
-        Audio.beep(this.state.lamp);
-        break;
-      }
+      case "f": this.toggleLamp(); break;
       case "e": this.interact(); break;
       case "tab": {
         e.preventDefault();
@@ -1019,8 +1052,10 @@ export const Game = {
     switch (e.key.toLowerCase()) {
       case "w": case "arrowup": this.input.up = false; break;
       case "s": case "arrowdown": this.input.down = false; break;
-      case "a": case "arrowleft": this.input.left = false; break;
-      case "d": case "arrowright": this.input.right = false; break;
+      case "a": this.input.left = false; break;
+      case "d": this.input.right = false; break;
+      case "arrowleft": if (this.input.turn < 0) this.input.turn = 0; break;
+      case "arrowright": if (this.input.turn > 0) this.input.turn = 0; break;
       case "shift": this.input.sprint = false; break;
       default: break;
     }
