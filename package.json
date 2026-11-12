@@ -1,0 +1,11 @@
+{
+  "name": "factory-reset",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "FACTORY RESET — a survival-horror game set in an automated factory.",
+  "scripts": {
+    "validate": "node tools/validate.mjs",
+    "serve": "python3 -m http.server 8080"
+  }
+}
