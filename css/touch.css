@@ -2,10 +2,22 @@
 canvas#stage{cursor:crosshair; touch-action:none}
 body.touch canvas#stage{cursor:default}
 body.touch #hintline{display:none}
-body.touch #prompt{bottom:calc(150px + env(safe-area-inset-bottom))}
+
+/* on a phone the prompt sits under the objective, clear of the thumbs */
+body.touch #prompt{
+  top:calc(148px + env(safe-area-inset-top)); bottom:auto; left:50%;
+  max-width:86vw; padding:6px 10px; font-size:10.5px; line-height:1.45;
+}
 body.touch #prompt b{width:auto; padding:0 7px; letter-spacing:.14em}
-body.touch #hud-bottom{bottom:calc(14px + env(safe-area-inset-bottom))}
-body.touch #toasts{bottom:calc(200px + env(safe-area-inset-bottom))}
+
+/* meters stack above the stick instead of underneath it */
+body.touch #hud-bottom{
+  left:16px; bottom:calc(160px + env(safe-area-inset-bottom));
+  flex-direction:column; gap:7px;
+}
+body.touch .meter{width:104px}
+body.touch #objective{max-width:78vw}
+body.touch #toasts{bottom:calc(215px + env(safe-area-inset-bottom))}
 body.touch #subtitle{bottom:calc(186px + env(safe-area-inset-bottom)); width:min(620px,92vw)}
 body.touch #sub-text{font-size:13.5px}
 
@@ -37,13 +49,12 @@ body.touch #sub-text{font-size:13.5px}
 .tbtn.primary{background:rgba(226,178,90,.16); border-color:rgba(226,178,90,.62); color:#f0d79c; grid-row:span 2; height:100px}
 .tbtn.active{background:rgba(127,216,204,.24); border-color:rgba(127,216,204,.7); color:#c9f6ee}
 .tbtn:active{transform:translateY(1px)}
-#touch-hint{
-  position:absolute; left:50%; transform:translateX(-50%); top:calc(12px + env(safe-area-inset-top));
-  color:rgba(160,178,174,.5); font-size:9px; letter-spacing:.12em; text-align:center; pointer-events:none;
-}
-@media (max-height:520px){
+#touch-hint{display:none}
+
+@media (max-height:560px){
   #stick{width:104px; height:104px}
   #stick-knob{width:46px; height:46px}
   .tbtn{height:40px}
   .tbtn.primary{height:88px}
+  body.touch #hud-bottom{bottom:calc(146px + env(safe-area-inset-bottom))}
 }
