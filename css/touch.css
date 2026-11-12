@@ -17,8 +17,8 @@ body.touch #hud-bottom{
 }
 body.touch .meter{width:104px}
 body.touch #objective{max-width:78vw}
-body.touch #toasts{bottom:calc(215px + env(safe-area-inset-bottom))}
-body.touch #subtitle{bottom:calc(186px + env(safe-area-inset-bottom)); width:min(620px,92vw)}
+body.touch #toasts{bottom:calc(306px + env(safe-area-inset-bottom))}
+body.touch #subtitle{bottom:calc(248px + env(safe-area-inset-bottom)); width:min(620px,92vw)}
 body.touch #sub-text{font-size:13.5px}
 
 #touch{position:fixed; inset:0; z-index:22; pointer-events:none; transition:opacity .18s ease}
