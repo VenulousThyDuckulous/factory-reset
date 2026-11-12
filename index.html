@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#07080a" />
+<title>FACTORY RESET</title>
+<meta name="description" content="FACTORY RESET — a survival-horror descent through an automated factory that has begun recycling its night shift." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23090b0c'/%3E%3Ccircle cx='16' cy='13' r='6' fill='none' stroke='%23e2b25a' stroke-width='2'/%3E%3Cpath d='M11 24h10M13 20v4M19 20v4' stroke='%23e2b25a' stroke-width='2'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<canvas id="stage"></canvas>
+
+<div class="fx grain"></div>
+<div class="fx scan"></div>
+<div class="fx vignette"></div>
+<div id="flash"></div>
+
+<!-- ============ HUD ============ -->
+<div id="hud" class="hidden">
+  <div id="hud-top">
+    <div id="zone-label">
+      <b id="zone-name">C-WING</b>
+      <span id="zone-sub">staff lockers</span>
+    </div>
+    <div id="hud-right">
+      <span id="clock">00:00</span>
+      <span id="shard-count">◇ 0/7</span>
+    </div>
+  </div>
+
+  <div id="objective">
+    <span class="tag">OBJECTIVE</span>
+    <span id="objective-text"></span>
+  </div>
+
+  <div id="hud-bottom">
+    <div class="meter" id="m-battery"><label>LAMP</label><div class="bar"><i id="battery-bar"></i></div></div>
+    <div class="meter" id="m-stamina"><label>BREATH</label><div class="bar"><i id="stamina-bar"></i></div></div>
+    <div class="meter" id="m-vitals"><label>VITALS</label><div class="bar"><i id="health-bar"></i></div></div>
+  </div>
+
+  <div id="hintline">WASD move &middot; SHIFT run &middot; F lamp &middot; E use &middot; TAB journal &middot; ESC pause</div>
+</div>
+
+<div id="prompt" class="hidden"><b>E</b><span id="prompt-text"></span></div>
+<div id="toasts"></div>
+
+<div id="subtitle" class="hidden">
+  <div id="sub-speaker"></div>
+  <div id="sub-text"></div>
+</div>
+
+<!-- ============ TITLE ============ -->
+<div id="screen-title" class="screen">
+  <div class="title-wrap">
+    <div class="overline">HALVORSEN AUTOMATICS &nbsp;/&nbsp; PLANT 7 &nbsp;/&nbsp; 03:13</div>
+    <h1 class="logo" data-text="FACTORY RESET">FACTORY RESET</h1>
+    <p class="tagline">The line is running. The shift is over.<br />You are the material.</p>
+    <div class="menu">
+      <button id="btn-new">BEGIN SHIFT</button>
+      <button id="btn-continue" class="ghost">CONTINUE</button>
+      <button id="btn-load" class="ghost">LOAD FILE</button>
+      <button id="btn-help" class="ghost">HOW TO PLAY</button>
+    </div>
+    <p class="footnote">Headphones recommended. Progress saves in this browser.</p>
+  </div>
+</div>
+
+<!-- ============ SAVE SLOTS ============ -->
+<div id="screen-slots" class="screen hidden">
+  <div class="panel">
+    <h2 id="slots-title">SHIFT FILES</h2>
+    <p class="panel-sub" id="slots-sub">Each file is stored locally, in this browser.</p>
+    <div id="slots-list" class="slots"></div>
+    <div class="panel-actions">
+      <button id="slots-close" class="ghost">BACK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ JOURNAL ============ -->
+<div id="screen-journal" class="screen hidden">
+  <div class="panel wide">
+    <div class="journal-head">
+      <h2>FIELD JOURNAL</h2>
+      <div class="tabs">
+        <button class="tab active" data-tab="objectives">OBJECTIVE</button>
+        <button class="tab" data-tab="notes">DOCUMENTS</button>
+        <button class="tab" data-tab="map">MAP</button>
+        <button class="tab" data-tab="inventory">KIT</button>
+        <button class="tab" data-tab="cores">CORES</button>
+      </div>
+    </div>
+    <div id="journal-body"></div>
+    <div class="panel-actions">
+      <button id="journal-close" class="ghost">CLOSE [TAB]</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAUSE ============ -->
+<div id="screen-pause" class="screen hidden">
+  <div class="panel">
+    <h2>PAUSED</h2>
+    <p class="panel-sub">The plant does not stop. Neither should you.</p>
+    <div class="menu">
+      <button id="btn-resume">RESUME</button>
+      <button id="btn-save" class="ghost">SAVE TO FILE</button>
+      <button id="btn-pause-load" class="ghost">LOAD FILE</button>
+      <button id="btn-mute" class="ghost">SOUND: ON</button>
+      <button id="btn-to-title" class="ghost danger">ABANDON SHIFT</button>
+    </div>
+    <p class="footnote" id="pause-stats"></p>
+  </div>
+</div>
+
+<!-- ============ MODAL ============ -->
+<div id="screen-modal" class="screen hidden">
+  <div class="panel modal-panel" id="modal-panel">
+    <h2 id="modal-title">DOCUMENT</h2>
+    <div id="modal-body"></div>
+    <div class="panel-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<!-- ============ DEATH ============ -->
+<div id="screen-death" class="screen hidden">
+  <div class="death-wrap">
+    <h2>SHIFT TERMINATED</h2>
+    <p id="death-reason">Reclaimed.</p>
+    <div class="menu">
+      <button id="btn-respawn">RESTORE LAST RECORD</button>
+      <button id="btn-death-load" class="ghost">LOAD FILE</button>
+    </div>
+    <p class="footnote" id="death-stats"></p>
+  </div>
+</div>
+
+<!-- ============ ENDING ============ -->
+<div id="screen-ending" class="screen hidden">
+  <div class="ending-wrap">
+    <div class="overline" id="ending-kicker">END OF SHIFT</div>
+    <h2 id="ending-title">—</h2>
+    <div id="ending-text"></div>
+    <p class="footnote" id="ending-stats"></p>
+    <div class="menu">
+      <button id="btn-ending-menu">RETURN TO TITLE</button>
+    </div>
+  </div>
+</div>
+
+<div id="fade"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
