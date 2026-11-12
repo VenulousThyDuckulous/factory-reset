@@ -10,6 +10,7 @@ let origin = { x: 0, y: 0 };
 let lookPrev = { x: 0, y: 0 };
 let lookStart = { x: 0, y: 0, t: 0 };
 let layer = null;
+let suppressClickUntil = 0;
 
 const STICK_R = 52;
 
@@ -108,6 +109,7 @@ export const Touch = {
         e.preventDefault();
         e.stopPropagation();
         Audio.resume();
+        suppressClickUntil = performance.now() + 450;
         fn();
       });
     };
@@ -128,6 +130,17 @@ export const Touch = {
       G.input.sprint = next;
       if (r) r.classList.toggle("active", next);
     });
+
+    // a tap that opens a panel would otherwise deliver its click to whatever
+    // button appears under the finger, closing the panel again
+    document.addEventListener("click", (e) => {
+      if (performance.now() > suppressClickUntil) return;
+      const t = e.target;
+      if (t && t.closest && t.closest(".screen")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
 
     // the interaction prompt says E on a keyboard; on a phone it should say USE
     const prompt = document.getElementById("prompt");
