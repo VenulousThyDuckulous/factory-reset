@@ -41,7 +41,7 @@ export const Touch = {
         if (stickId !== null) return;
         e.preventDefault();
         stickId = e.pointerId;
-        stick.setPointerCapture(e.pointerId);
+        try { stick.setPointerCapture(e.pointerId); } catch (err) { /* capture is optional */ }
         const r = stick.getBoundingClientRect();
         origin = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
         Audio.resume();
@@ -77,7 +77,7 @@ export const Touch = {
         e.preventDefault();
         Audio.resume();
         lookId = e.pointerId;
-        look.setPointerCapture(e.pointerId);
+        try { look.setPointerCapture(e.pointerId); } catch (err) { /* capture is optional */ }
         lookPrev = { x: e.clientX, y: e.clientY };
         lookStart = { x: e.clientX, y: e.clientY, t: performance.now() };
       });
